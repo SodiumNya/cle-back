@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.clebackend.mapper.goods.GoodsSpecsMapper">
+    <update id="updateGoodsSpecs" parameterType="com.example.clebackend.entity.product.GoodsSpecs">
+        update goods_specs
+        <set>
+            <if test="goodsId != null">
+                goods_id = #{goodsId},
+            </if>
+            <if test="specs != null">
+                specs = #{specs,jdbcType=VARCHAR},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="stock != null">
+                stock = #{stock},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+</mapper>

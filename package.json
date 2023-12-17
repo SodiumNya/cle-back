@@ -1,0 +1,7 @@
+{
+  "name": "cle-back-end",
+  "version": "1.0.0",
+  "dependencies": {
+    "vuex": "^4.1.0"
+  }
+}

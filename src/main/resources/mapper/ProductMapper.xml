@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.clebackend.mapper.user.ProductMapper">
+
+    <select id="getProductPicture" parameterType="Integer" resultType="java.util.HashMap">
+        select id, url
+        from goods_picture
+        where goods_id = #{id} and delete_state = 0
+    </select>
+    
+    <select id="getTop30Products" parameterType="String" resultType="com.example.clebackend.entity.product.Goods">
+        select goods.id, goods.name, main_image, score, sale
+        from goods left join shop on shop.id = goods.shop_id
+        where shop.canteen_name = #{canteenName} and sale_state = 1 and delete_status = 0
+        order by goods.sale desc
+        limit 30
+    </select>
+
+    <select id="getComments" parameterType="Integer" resultType="com.example.clebackend.dto.ProductCommentsDto">
+        select comments.content, comments.created, user.nickname, user.avatar, comments.score
+        from comments left join user
+        on comments.user_id = user.id
+        where comments.goods_id = #{goodsId}
+    </select>
+
+    <select id="getGoodsByShopId" parameterType="Integer" resultType="com.example.clebackend.entity.product.Goods">
+        select id, name, main_image, score, sale, shop_id
+        from goods
+        where shop_id = #{shopId} and sale_state = 1 and delete_status = 0;
+    </select>
+
+    <select id="getOrder" parameterType="com.example.clebackend.dto.OrderDto" resultType="com.example.clebackend.dto.OrderDto">
+        select
+        shop.id AS shop_id,
+        shop.NAME AS shop_name,
+        goods.id AS good_id,
+        goods.main_image,
+        goods.NAME as good_name,
+        goods_specs.specs as specs,
+        goods_specs.id as specs_id,
+        goods_specs.price
+        FROM
+        shop
+        LEFT JOIN goods ON shop.id = goods.shop_id
+        LEFT JOIN goods_specs ON goods.id = goods_specs.goods_id
+        WHERE
+        goods_specs.goods_id = #{goodId}
+        AND goods_specs.specs = #{goodSpecs}
+    </select>
+
+    <resultMap id="searchGoodsMap" type="com.example.clebackend.dto.SearchGoodsDto">
+        <id property="canteenName" column="canteen_name"/>
+        <collection property="goodsList" ofType="com.example.clebackend.dto.ShopGoodsDto">
+            <id property="id" column="id"/>
+            <result property="name" column="name"/>
+            <result property="allDaySale" column="all_day_sale"/>
+            <result property="saleState" column="sale_state"/>
+            <result property="mainImage" column="main_image"/>
+            <result property="minPrice" column="min_price"/>
+            <result property="maxPrice" column="max_price"/>
+            <result property="score" column="score"/>
+            <result property="sale" column="sale"/>
+        </collection>
+    </resultMap>
+
+    <select id="searchGoodsForUser" resultMap="searchGoodsMap">
+        SELECT
+        goods.id,
+        shop.canteen_name as canteen_name,
+        goods.NAME as name,
+        all_day_sale,
+        sale_state,
+        main_image,
+        min( price ) AS min_price,
+        max( price ) AS max_price,
+        score,
+        sale
+        FROM
+        goods
+        LEFT JOIN shop ON shop.id = goods.shop_id
+        LEFT JOIN goods_specs ON goods.id = goods_specs.goods_id
+        <where>
+            delete_status = 0
+            <if test="keyword != null and keyword != ''">
+                and goods.Name LIKE CONCAT('%',#{keyword},'%')
+            </if>
+            <if test="keyword != null and keyword != ''">
+                or shop.canteen_name LIKE CONCAT('%',#{keyword},'%')
+            </if>
+        </where>
+        GROUP BY shop.canteen_name, goods.id
+    </select>
+
+    <select id="searchGoods" resultType="com.example.clebackend.dto.ShopGoodsDto">
+        SELECT
+        goods.id,
+        goods.NAME,
+        all_day_sale,
+        sale_state,
+        main_image,
+        min(price) AS min_price,
+        max(price) AS max_price,
+        score,
+        sale
+        FROM
+        goods
+        LEFT JOIN goods_specs ON goods.id = goods_specs.goods_id
+       <where>
+           delete_status = 0
+           <if test="status != null and status != -1">
+               and sale_state = #{status} OR
+           </if>
+           <if test="keyword != null and keyword != ''">
+               goods.Name LIKE CONCAT('%',#{keyword},'%')
+           </if>
+       </where>
+
+        GROUP BY
+        goods.id
+    </select>
+
+    <select id="getGoodsInfoForShop" resultType="com.example.clebackend.dto.ShopGoodsDto">
+        SELECT
+        goods.id,
+        goods.NAME,
+        all_day_sale,
+        sale_state,
+        main_image,
+        min( price ) AS min_price,
+        max( price ) AS max_price,
+        score,
+        sale
+        FROM
+        goods
+        LEFT JOIN goods_specs ON goods.id = goods_specs.goods_id
+        WHERE
+        goods.shop_id = #{shopId} and delete_status = 0
+        GROUP BY
+        goods.id
+    </select>
+
+    <select id="getSaleGoodsInfoForShop" resultType="com.example.clebackend.dto.ShopGoodsDto">
+        SELECT
+        goods.id,
+        goods.NAME,
+        all_day_sale,
+        sale_state,
+        main_image,
+        min( price ) AS min_price,
+        max( price ) AS max_price,
+        score,
+        sale
+        FROM
+        goods
+        LEFT JOIN goods_specs ON goods.id = goods_specs.goods_id
+        WHERE
+        goods.shop_id = #{shopId} and goods.sale_state = #{saleStatue}
+        and delete_status = 0
+        GROUP BY
+        goods.id
+    </select>
+
+    <update id="updateGoods" parameterType="com.example.clebackend.entity.product.Goods">
+        update goods
+        <set>
+            <if test="categoryId != null">
+                category_id = #{categoryId},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="mainImage != null">
+                main_image = #{mainImage,jdbcType=VARCHAR},
+            </if>
+            <if test="detail != null">
+                detail = #{detail,jdbcType=VARCHAR},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="endTime != null">
+                end_time = #{endTime},
+            </if>
+            <if test="allDaySale != null">
+                all_day_sale = #{allDaySale}
+            </if>
+            <if test="saleState != null and state != ''">
+                sale_state = #{saleState}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateScore">
+        update goods
+        <set>
+            <if test="score != null">
+                score = #{score},
+            </if>
+            <if test="sumScore != null">
+                sum_score = #{sumScore}
+            </if>
+        </set>
+        where id = #{goodsId}
+    </update>
+
+</mapper>

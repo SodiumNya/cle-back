@@ -1,0 +1,6 @@
+{
+  "outPath": "./src/main/resources/static/doc",
+  "serverUrl": "http://localhost:9787"
+}
+
+

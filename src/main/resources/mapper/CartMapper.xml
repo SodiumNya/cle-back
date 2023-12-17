@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.clebackend.mapper.cart.CartMapper">
+    <!-- 在你的 MyBatis 配置文件中 -->
+    <resultMap id="CartInfoResultMap" type="com.example.clebackend.dto.CartDto">
+        <id property="id" column="cart_id"/>
+        <collection property="cartItemList" ofType="com.example.clebackend.dto.CartItemDto">
+            <id property="shopId" column="shop_id"/>
+            <id property="shopName" column="shop_name"/>
+            <collection property="goodList" ofType="com.example.clebackend.dto.CartGoodDto">
+                <id property="cartItemId" column="cart_item_id"/>
+                <id property="goodId" column="good_id"/>
+                <id property="goodName" column="good_name"/>
+                <id property="specs" column="specs"/>
+                <id property="specsId" column="specs_id"/>
+                <!-- 其他属性的映射规则 -->
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="getCartByUserId" parameterType="Integer" resultMap="CartInfoResultMap">
+        SELECT DISTINCT
+        cart.id AS cart_id,
+        shop.id AS shop_id,
+        cart_item.id as cart_item_id,
+        shop.name AS shop_name,
+        goods.id AS good_id,
+        goods.name AS good_name,
+        goods_specs.id AS specs_id,
+        goods_specs.specs
+        FROM user
+        LEFT JOIN cart ON user.id = cart.user_id
+        LEFT JOIN cart_item ON cart.id = cart_item.cart_id
+        LEFT JOIN goods ON cart_item.good_id = goods.id
+        LEFT JOIN goods_specs ON goods_specs.id = cart_item.specs_id
+        LEFT JOIN shop ON shop.id = goods.shop_id
+        WHERE user.id = #{userId}
+    </select>
+
+    <select id="getCartItemId" parameterType="Integer" resultType="Integer">
+        SELECT
+        cart_item.id
+        FROM
+        cart LEFT JOIN cart_item
+        ON cart.id = cart_item.cart_id
+        where user_id = #{userId} and good_id = #{goodId} and specs_id = #{specsId}
+    </select>
+
+</mapper>

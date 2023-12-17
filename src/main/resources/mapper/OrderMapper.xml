@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.clebackend.mapper.order.OrderMapper">
+    <!-- 在你的 MyBatis 配置文件中 -->
+    <resultMap id="OrderInfoResultMap" type="com.example.clebackend.dto.OrderInfoDto">
+        <id property="orderSn" column="order_sn"/>
+        <id property="dateCreateTime" column="create_time"/>
+        <id property="statue" column="statue"/>
+        <id property="payPrice" column="pay_price"/>
+        <id property="shopName" column="shop_name"/>
+        <id property="shopLogo" column="shop_logo"/>
+        <collection property="goodList" ofType="com.example.clebackend.dto.GoodDto">
+            <id property="goodId" column="good_id"/>
+            <id property="mainImage" column="good_main_image"/>
+        </collection>
+    </resultMap>
+
+    <select id="getInfoByUserAccount" resultMap="OrderInfoResultMap">
+        SELECT
+        orders.order_sn,
+        orders.create_time,
+        orders.statue,
+        pay_price,
+        shop_name,
+        shop_logo,
+        good_id,
+        good_main_image
+        FROM
+        orders
+        LEFT JOIN oms_order_item ON orders.id = oms_order_item.order_id
+        LEFT JOIN shop ON orders.shop_id = shop.id
+        WHERE
+        orders.member_account = #{account}
+        <if test="statue != null and statue != 6">
+            AND orders.statue = #{statue}
+        </if>
+        ORDER BY orders.statue
+
+        <if test="asc != null and asc == 0">
+            , create_time ASC
+        </if>
+        <if test="asc != null and asc == 1">
+            , create_time desc
+        </if>
+    </select>
+
+    <select id="getInfoByShopId" resultMap="OrderInfoResultMap">
+        SELECT
+        orders.order_sn,
+        orders.create_time,
+        orders.statue,
+        pay_price,
+        shop_name,
+        shop_logo,
+        good_id,
+        good_main_image
+        FROM
+        orders
+        LEFT JOIN oms_order_item ON orders.id = oms_order_item.order_id
+        LEFT JOIN shop ON orders.shop_id = shop.id
+        WHERE
+        orders.shop_id = #{shopId} and orders.statue != 0
+        <if test="statue != null and statue != 6">
+            AND orders.statue = #{statue}
+        </if>
+        ORDER BY orders.statue
+        <if test="asc != null and asc == 0">
+            , create_time ASC
+        </if>
+        <if test="asc != null and asc == 1">
+            , ORDER BY create_time desc
+        </if>
+    </select>
+
+
+    <resultMap id="OrderDetailResultMap" type="com.example.clebackend.dto.OrderDetailDto">
+        <id property="orderSn" column="order_sn"/>
+        <id property="dateCreateTime" column="create_time"/>
+        <id property="statue" column="statue"/>
+        <id property="payPrice" column="pay_price"/>
+        <id property="shopName" column="shop_name"/>
+        <id property="shopLogo" column="shop_logo"/>
+        <id property="note" column="note"/>
+        <collection property="goodList" ofType="com.example.clebackend.dto.GoodDto">
+            <id property="goodId" column="good_id"/>
+            <id property="goodName" column="good_name"/>
+            <id property="mainImage" column="good_main_image"/>
+            <id property="price" column="good_price"/>
+            <id property="quantity" column="good_quantity"/>
+            <id property="reviewStatus" column="review_status"/>
+        </collection>
+    </resultMap>
+
+    <select id="getDetail" parameterType="String" resultMap="OrderDetailResultMap">
+        SELECT
+        orders.order_sn,
+        orders.create_time,
+        orders.statue,
+        pay_price,
+        shop_name,
+        shop_logo,
+        good_id,
+        good_name,
+        good_main_image,
+        good_price,
+        good_quantity,
+        review_status,
+        orders.note
+        FROM
+        orders
+        LEFT JOIN oms_order_item ON orders.id = oms_order_item.order_id
+        left JOIN shop on orders.shop_id = shop.id
+        where orders.order_sn = #{orderSn}
+    </select>
+
+
+</mapper>

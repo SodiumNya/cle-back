@@ -1,0 +1,50 @@
+server:
+  port: 9787
+  address: localhost
+spring:
+  application:
+    name: cle
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_cle?useSSL=false&serverTimezone=UTC
+    username: root
+    password: 114514
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  security:
+    user:
+      name: user
+      password: 123456
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 300MB
+
+  mail:
+    default-encoding: UTF-8
+    host: smtp.gmail.com
+    username: qigestare@gmail.com
+    password: 2222
+    port: 456
+#mybatis三剑客配置
+mybatis-plus:
+  type-aliases-package: com.example.clebackend.*.entity
+  mapper-locations: classpath:mapper/*.xml
+  #驼峰命名自动转换，打印sql语句
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+uploadFileMode: local
+fileSave:
+  path: E:\java学习\springboot\cle-back-end\src\main\java\com\example\clebackend\files\
+  address: localhost
+#  path: ../files
+
+salt:
+  user: orz_orz_orz_114514_user
+  shop: orz_orz_orz_114514_shop
+  admin: orz_orz_orz_114514_admin
+
+
+
