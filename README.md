@@ -28,4 +28,4 @@ java+springboot3+mysql+mybatisplus+maven
 
 ### 提出意见
 如果发现了任何bug或有更好的想法以及有任何问题，可以通过邮箱联系我：
-#### email：sodiumnya.@gmail.com
+#### email：sodiumnya@gmail.com
